@@ -1,0 +1,216 @@
+/* --------------------------------------------------
+   GENERAL RESET & BASE STYLES
+   -------------------------------------------------- */
+   * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #333;
+    color: #eee;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .frame {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #444;
+    border-radius: 8px;
+    border: 1px solid #666;
+  }
+  
+  /* --------------------------------------------------
+     HEADINGS, PARAGRAPHS, MARGINS
+     -------------------------------------------------- */
+  h1, h2, h3, h4 {
+    margin-bottom: 10px;
+    color: #fff;
+  }
+  
+  p {
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  
+  .mb-10 {
+    margin-bottom: 10px;
+  }
+  .mb-20 {
+    margin-bottom: 20px;
+  }
+  
+  /* --------------------------------------------------
+     TABLES
+     -------------------------------------------------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  th, td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #555;
+    color: #fff;
+  }
+  
+  /* --------------------------------------------------
+     BUTTONS
+     -------------------------------------------------- */
+  .button {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-size: 14px;
+    margin: 0; /* Control spacing via container/gap or utility classes. */
+    text-align: center;
+    vertical-align: middle; /* Align with adjacent elements (e.g., inputs). */
+    line-height: normal;
+  }
+
+  .admin-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* space between buttons or forms */
+    flex-wrap: wrap; /* ensures they won't overlap on smaller screens */
+    margin-bottom: 10px; /* optional */
+  }
+  
+  /* Variations by usage */
+  .button-save {
+    background-color: #5cb85c; /* green */
+  }
+  .button-delete {
+    background-color: #d9534f; /* red */
+  }
+  .button-general {
+    background-color: #337ab7; /* blue */
+  }
+  .button-edit {
+    background-color: #c0c861; /* yellow */
+  }
+  .share-button {
+    background-color: #5bc0de; /* light blue */
+    float: right;
+  }
+  
+  /* --------------------------------------------------
+     LINKS
+     -------------------------------------------------- */
+  a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Additional button effect */
+  .button:hover {
+    opacity: 0.85;
+  }
+  
+  /* --------------------------------------------------
+     FORMS & INPUTS
+     -------------------------------------------------- */
+  form {
+    margin-bottom: 10px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  select {
+    width: 200px;
+    padding: 6px 10px;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #000;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  input[type="submit"],
+  button[type="submit"] {
+    font-weight: bold;
+    /* can rely on .button classes if used, else define consistent style here */
+  }
+  
+  /* --------------------------------------------------
+     FLEX & LAYOUT HELPERS
+     -------------------------------------------------- */
+  .flex-row {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    flex-wrap: wrap; /* or nowrap, if desired */
+  }
+  
+  /* --------------------------------------------------
+     MESSAGES
+     -------------------------------------------------- */
+  ul.messages {
+    list-style: none;
+    margin-bottom: 15px;
+    padding: 0;
+  }
+  
+  ul.messages li {
+    display: inline-block;
+    background-color: #555;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    top: 25px;
+    right: 25px;
+    
+  }
+  
+  /* Example categorization if using categories in flash messages:
+     .messages li.info    { background: #31708f; }
+     .messages li.success { background: #3c763d; }
+     .messages li.error   { background: #a94442; }
+  */
+  
+  /* --------------------------------------------------
+     MISC
+     -------------------------------------------------- */
+  a {
+    color: #08c;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .transaction-results {
+    background-color: #444; 
+    padding: 10px;
+    border-radius: 4px;
+  }
+  .transaction-results ul {
+    list-style: none; /* remove default bullets if you prefer */
+    padding-left: 0;
+  }

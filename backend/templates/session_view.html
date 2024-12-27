@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>{{ session_name }} - Expense Splitter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <script>
+  function copyLink() {
+      const link = window.location.href;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link)
+              .then(() => {
+                  showNotification("Session link copied to clipboard!");
+              })
+              .catch(err => {
+                  showNotification("Failed to copy link: " + err);
+              });
+      } else {
+          fallbackCopy(link);
+      }
+  }
+
+  function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+          document.execCommand("copy");
+          showNotification("Session link copied to clipboard using fallback!");
+      } catch (err) {
+          showNotification("Failed to copy link using fallback: " + err);
+      }
+      document.body.removeChild(textarea);
+  }
+
+  function showNotification(message) {
+      const notification = document.createElement("div");
+      notification.className = "notification";
+      notification.innerText = message;
+      const shareButton = document.querySelector(".share-button");
+      shareButton.insertAdjacentElement('afterend', notification);
+      setTimeout(() => {
+          notification.remove();
+      }, 1500);
+  }
+
+  function confirmDelete() {
+      return confirm("Are you sure you want to delete this session?");
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function() {
+          const flashMessages = document.querySelectorAll(".messages li");
+          flashMessages.forEach(function(message) {
+              message.style.display = "none";
+          });
+      }, 5000);
+  });
+  </script>
+</head>
+<body>
+<div class="frame">
+  <!-- Session Name + Share Button -->
+  <h1 style="text-align: center;">{{ session_name }}</h1>
+  <button class="button button-general share-button" onclick="copyLink()">Share Link</button>
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="messages">
+        {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <!-- If password is required but not provided, show the password form -->
+  {% if password_required and not editable %}
+    <h3>This session requires a password to edit.</h3>
+    <form action="{{ url_for('enter_password', session_id=session_id) }}" method="post" class="mb-20">
+      <input type="password" name="password" placeholder="Enter Password" required />
+      <button type="submit" class="button button-general">Submit</button>
+    </form>
+  {% endif %}
+
+  <!-- Admin Controls Section -->
+  {% if admin %}
+    <h2>Admin Controls</h2>
+    <div class="admin-buttons mb-20" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="left-section">
+        <form action="{{ url_for('set_password', session_id=session_id) }}" method="post" class="mb-10">
+          <input type="password" name="password" placeholder="Set/Change Password" />
+          <button type="submit" class="button button-save">Set Password</button>
+        </form>
+      </div>
+      <div class="right-section">
+        <form action="{{ url_for('delete_session', session_id=session_id) }}"
+              method="post"
+              style="display:inline-block;"
+              onsubmit="return confirmDelete();">
+          <button type="submit" class="button button-delete">Delete Session</button>
+        </form>
+
+        <button type="button" class="button button-edit" 
+                onclick="window.location.href='{{ url_for('edit_admin', session_id=session_id) }}'">
+          Edit Name &amp; Category Lists
+        </button>
+
+        {% if editable %}
+          <form action="{{ url_for('save_and_exit', session_id=session_id) }}" method="post" style="display:inline-block;">
+            <button type="submit" class="button button-general">Save and Exit</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Optional dividing line after Admin Controls -->
+  <hr class="mb-10">
+
+  <!-- People List -->
+  <h3 class="mb-10">People</h3>
+  {% if persons %}
+    <ul class="mb-20" style="padding-left: 20px;">
+      {% for p in persons %}
+        <li>{{ p.name }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="mb-20">No people in this session.</p>
+  {% endif %}
+ <!-- Optional dividing line after People List -->
+  <hr class="mb-10">
+
+  <!-- Add Person Form -->
+  {% if editable %}
+    <h3>Add Person</h3>
+    <p class="mb-10" style="color:#bbb;">Add a participant who will share expenses.</p>
+    <form action="{{ url_for('add_person', session_id=session_id) }}" method="post" class="mb-20">
+      <input type="text" name="name" placeholder="e.g. Alice" required />
+      <button type="submit" class="button button-general">Add Person</button>
+    </form>
+  {% endif %}
+  <!-- Optional dividing line after Add Person Form -->
+  <hr class="mb-10">
+
+  <!-- Add Expense Form -->
+  {% if editable or admin %}
+    <h3>Add Expense</h3>
+    <p class="mb-10" style="color:#bbb;">Select a person, enter the spent amount, and categorize it (e.g. “Food”, “Transport”).</p>
+    {% if persons %}
+      <form action="{{ url_for('add_expense_route', session_id=session_id) }}" method="post" class="mb-20">
+        <label>Person:</label>
+        <select name="person_id">
+          {% for p in persons %}
+            <option value="{{ p.id }}">{{ p.name }}</option>
+          {% endfor %}
+        </select>
+
+        <label>Amount:</label>
+        <input type="number" step="0.01" name="amount" placeholder="e.g. 12.50" required />
+
+        <label>Category:</label>
+        <input type="text" name="category" placeholder="e.g. Groceries" required />
+
+        <button type="submit" class="button button-general">Add Expense</button>
+      </form>
+    {% else %}
+      <p>No people added yet.</p>
+    {% endif %}
+  {% endif %}
+  <!-- Optional dividing line after Add Expense Form -->
+  <hr class="mb-10">
+
+  <!-- People & Categories Table/Form -->
+  <h3>People &amp; Categories</h3>
+  {% if persons and all_categories %}
+    {% if editable %}
+      <!-- Editable version, user can check categories for each person -->
+      <form action="{{ url_for('apply_categories', session_id=session_id) }}" method="post" class="mb-20">
+        <table>
+          <tr>
+            <th>Name</th>
+            {% for cat in all_categories %}
+              <th>{{ cat }}</th>
+            {% endfor %}
+          </tr>
+          {% for p in persons %}
+          <tr>
+            <td>{{ p.name }}</td>
+            {% for cat in all_categories %}
+              <td>
+                <input type="checkbox" name="{{ p.name }}_{{ cat }}"
+                  {% if cat in person_categories[p.name] %}checked{% endif %}>
+              </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+        <button type="submit" class="button button-general">Apply Categories</button>
+      </form>
+    {% else %}
+      <!-- View-only version, show checkmarks -->
+      <table class="mb-20">
+        <tr>
+          <th>Name</th>
+          {% for cat in all_categories %}
+            <th>{{ cat }}</th>
+          {% endfor %}
+        </tr>
+        {% for p in persons %}
+        <tr>
+          <td>{{ p.name }}</td>
+          {% for cat in all_categories %}
+            <td>
+              {% if cat in person_categories[p.name] %}
+                ✔
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  {% elif not persons %}
+    <p>No people in this session.</p>
+  {% else %}
+    <p>No categories defined.</p>
+  {% endif %}
+  <!-- Optional dividing line after People & Categories Table/Form -->
+  <hr class="mb-10">
+
+  <!-- Transactions Section -->
+  <h3>Transactions</h3>
+  {% if editable %}
+    <form action="{{ url_for('calculate_transactions_route', session_id=session_id) }}" method="post" class="mb-20">
+      <button type="submit" class="button button-general">Calculate Transactions</button>
+    </form>
+  {% endif %}
+
+  <div class="transaction-results mb-20" style="background-color: #444; padding: 10px; border-radius: 4px;">
+    {% if transactions %}
+      <ul style="list-style: none; padding-left: 0;">
+        {% for d, c, amt in transactions %}
+          <li>{{ d }} pays {{ c }}: {{ amt }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No transactions calculated yet.</p>
+    {% endif %}
+  </div>
+  <!-- Optional dividing line after Transactions Section -->
+  <hr class="mb-10">
+
+  <!-- Expenses Table -->
+  <h3>Expenses</h3>
+  <table>
+    <tr>
+      <th>Person</th>
+      <th>Category</th>
+      <th>Total Amount</th>
+    </tr>
+    {% for person, categories in person_category_expenses.items() %}
+      {% for category, total in categories.items() %}
+        <tr>
+          <td>{{ person }}</td>
+          <td>{{ category }}</td>
+          <td>{{ total }}</td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+  </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Splitter – Initial Setup</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="frame">
+  <h1>Create a New Calculation Session</h1>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul class="messages">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <p class="mb-10" style="color: #bbb;">
+    Provide a name that describes your session.  
+    Use an Admin Password to manage or delete the session later.
+  </p>
+
+  <form action="{{ url_for('create_session') }}" method="post">
+    <div class="mb-10">
+      <label for="session_name">Session Name:</label>
+      <input type="text" id="session_name" name="session_name" required>
+    </div>
+
+    <div class="mb-20">
+      <label for="password">Admin Password:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+
+    <button type="submit" class="button button-general">Create Session</button>
+  </form>
+</div>
+
+</body>
+</html>
